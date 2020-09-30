@@ -1,6 +1,7 @@
 const express = require("express");
 const User = require("./userDb.js");
 const Post = require("../posts/postDb");
+const { getById } = require("./userDb.js");
 const router = express.Router();
 
 // not fully working
@@ -32,10 +33,27 @@ router.post("/:id/posts", (req, res) => {
 
 router.get("/", (req, res) => {
   // do your magic!
+  User.get()
+    .then((users) => {
+      res.status(200).json({ users });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Error!" });
+    });
 });
 
 router.get("/:id", (req, res) => {
   // do your magic!
+  const id = req.params.id;
+  User.getById(id)
+    .then((user) => {
+      res.status(200).json({ user });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(404).json({ message: "There was an error" });
+    });
 });
 
 router.get("/:id/posts", (req, res) => {
