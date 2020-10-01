@@ -2,7 +2,7 @@ const express = require("express");
 const User = require("./userDb.js");
 const Post = require("../posts/postDb");
 const { getById } = require("./userDb.js");
-const { json } = require("express");
+const { json, response } = require("express");
 const router = express.Router();
 
 // not fully working
@@ -95,6 +95,15 @@ router.delete("/:id", (req, res) => {
 
 router.put("/:id", (req, res) => {
   // do your magic!
+  const id = req.params.id;
+  const changes = req.body;
+  User.update(id, changes)
+    .then((response) => {
+      res.status(201).json({ response });
+    })
+    .catch((err) => {
+      res.status(404).json({ message: "error", error: err });
+    });
 });
 
 //custom middleware
