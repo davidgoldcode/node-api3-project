@@ -4,7 +4,6 @@ const Post = require("../posts/postDb");
 const { json, response } = require("express");
 const router = express.Router();
 
-// not fully working
 router.post("/", (req, res) => {
   // do your magic!
   const name = req.body.name;
@@ -18,7 +17,7 @@ router.post("/", (req, res) => {
     });
 });
 
-router.post("/:id/posts", (req, res) => {
+router.post("/:id/posts", validateUserId, (req, res) => {
   // do your magic!
   const msgInfo = { ...req.body, user_id: req.params.id };
   Post.insert(msgInfo)
@@ -43,7 +42,7 @@ router.get("/", (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", validateUserId, (req, res) => {
   // do your magic!
   const id = req.params.id;
   User.getById(id)
@@ -56,7 +55,7 @@ router.get("/:id", (req, res) => {
     });
 });
 
-router.get("/:id/posts", (req, res) => {
+router.get("/:id/posts", validateUserId, (req, res) => {
   const user_id = req.params.id;
   console.log(user_id);
   User.getUserPosts(user_id)
@@ -73,7 +72,7 @@ router.get("/:id/posts", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateUserId, (req, res) => {
   // do your magic!
   const id = req.params.id;
   User.remove(id)
@@ -92,7 +91,7 @@ router.delete("/:id", (req, res) => {
     });
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", validateUserId, (req, res) => {
   // do your magic!
   const id = req.params.id;
   const changes = req.body;
@@ -107,17 +106,43 @@ router.put("/:id", (req, res) => {
 
 //custom middleware
 
-// function validateUserId(id) {
-//   return function (req, res, next) {
-//     if req.headers.id === id {
-//       // to continue
-//     }
-//     next()
-//   }
-// }
+function validateUserId(req, res, next) {
+  // do your magic!
+  const id = req.params.id;
+  User.getById(id)
+    .then((user) => {
+      console.log(user, "<=== user console");
+      if (user) {
+        console.log(user);
+        req.user = user;
+        next();
+      } else {
+        res.status(400).json({ message: "User not found" });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).message({ message: "Invalid user ID" });
+    });
+}
 
 function validateUser(req, res, next) {
   // do your magic!
+  const id = req.params.id;
+  User.getById(id)
+    .then((user) => {
+      if (user) {
+        console.log(user);
+        req.user = user;
+        next();
+      } else {
+        res.status(400).json({ message: "invalid user id" });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).message({ message: "Server not working at this time" });
+    });
 }
 
 function validatePost(req, res, next) {
