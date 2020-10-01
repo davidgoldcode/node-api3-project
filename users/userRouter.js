@@ -1,7 +1,6 @@
 const express = require("express");
 const User = require("./userDb.js");
 const Post = require("../posts/postDb");
-const { getById } = require("./userDb.js");
 const { json, response } = require("express");
 const router = express.Router();
 
